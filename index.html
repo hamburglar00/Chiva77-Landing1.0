@@ -1,204 +1,197 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CloverBlack</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./styles.css" />
 
-<title>DONSOCIAL</title>
+    <!-- Performance: adelanta conexión con el Pixel -->
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+    <link rel="dns-prefetch" href="//connect.facebook.net" />
+    <link rel="preload" as="image" href="imagenes/fondo.png" />
 
-<link rel="icon" href="favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="./styles.css" />
+    <!-- Meta Pixel Code (con coincidencias avanzadas manuales) -->
+    <script>
+      // Utilidades
+      function getQS(name){ const u=new URLSearchParams(location.search); return u.get(name)||null }
+      function normEmail(v){ return (v||"").trim().toLowerCase() }
+      function normPhone(v){
+        let p=(v||"").replace(/\D+/g,"");
+        if(p && p.length===10) p="54"+p; // opcional, ajustá a tu necesidad
+        return p;
+      }
+      function getOrCreateExternalId(){
+        const k="external_id";
+        let id=localStorage.getItem(k);
+        if(!id){
+          id=(crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(16).slice(2));
+          localStorage.setItem(k,id);
+        }
+        return id;
+      }
 
-<!-- Performance -->
-<link rel="preconnect" href="https://connect.facebook.net" crossorigin />
-<link rel="dns-prefetch" href="//connect.facebook.net" />
-<link rel="preload" as="image" href="imagenes/fondo.avif" type="image/avif" />
-<link rel="preload" as="image" href="imagenes/fondo.png" />
+      // Datos de usuario disponibles (querystring o localStorage)
+      const userEmail  = normEmail( getQS("em") || localStorage.getItem("em") || "" );
+      const userPhone  = normPhone( getQS("ph") || localStorage.getItem("ph") || "" );
+      const externalId = getOrCreateExternalId();
 
-<!-- Meta Pixel -->
-<script>
-function getQS(name){
-  const u = new URLSearchParams(location.search);
-  return u.get(name) || null;
-}
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
 
-function normEmail(v){
-  return (v || "").trim().toLowerCase();
-}
+      // Coincidencias avanzadas
+      fbq('init', '1459000075661483', {
+        external_id: externalId,
+        em: userEmail || undefined,
+        ph: userPhone || undefined,
+        country: 'AR'
+      });
 
-function normPhone(v){
-  let p = (v || "").replace(/\D+/g, "");
-  if(p && p.length === 10) p = "54" + p;
-  return p;
-}
+      fbq('track', 'PageView');
+    </script>
+    <noscript>
+      <img height="1" width="1" style="display:none"
+           src="https://www.facebook.com/tr?id=1459000075661483&ev=PageView&noscript=1"/>
+    </noscript>
+    <!-- End Meta Pixel Code -->
+  </head>
 
-function getOrCreateExternalId(){
-  const k = "external_id";
-  let id = localStorage.getItem(k);
-  if(!id){
-    id = (crypto && crypto.randomUUID)
-      ? crypto.randomUUID()
-      : (Date.now() + "-" + Math.random().toString(16).slice(2));
-    localStorage.setItem(k, id);
-  }
-  return id;
-}
+  <body>
+    <div class="container background-image">
+      <div class="overlay"></div>
+      <div class="content">
+        <!-- Logo PNG -->
+        <img src="imagenes/logo.png" class="logo" width="240" height="120"
+             alt="CloverBlack" decoding="async" fetchpriority="high" />
 
-const userEmail  = normEmail(getQS("em") || localStorage.getItem("em") || "");
-const userPhone  = normPhone(getQS("ph") || localStorage.getItem("ph") || "");
-const externalId = getOrCreateExternalId();
+        <p class="title">Envianos un WhatsApp<br />para crear tu cuenta</p>
 
-!function(f,b,e,v,n,t,s){
-  if(f.fbq) return;
-  n=f.fbq=function(){ n.callMethod ?
-  n.callMethod.apply(n,arguments) : n.queue.push(arguments) };
-  if(!f._fbq) f._fbq=n;
-  n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[];
-  t=b.createElement(e); t.async=!0; t.src=v;
-  s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)
-}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        <a class="whatsapp-button" id="whatsappButton">
+          <span>¡Contactá ya!</span>
+          <img src="imagenes/whatsapp.png" alt="whatsapp"
+               class="whatsapp-icon" width="24" height="24" decoding="async" loading="lazy" />
+        </a>
 
-fbq('init', '1459000075661483', {
-  external_id: externalId,
-  em: userEmail || undefined,
-  ph: userPhone || undefined,
-  country: 'AR'
-});
+        <p class="subtitle">Mínimo de carga 3.000<br />Sín Cronogramas<br />Ganás y cobrás a cualquier hora</p>
+        <p class="description">-RED OFICIAL: CloverBlack-</p>
+      </div>
+    </div>
 
-fbq('track', 'PageView');
-</script>
+    <!-- Script WhatsApp con utm_campaign -> "Prefijo-UTM" -->
+    <script>
+      // === Configurá tu prefijo acá ===
+      const LANDING_PREFIX = "XXX"; // Cambiá si querés otro prefijo
 
-<noscript>
-<img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=1459000075661483&ev=PageView&noscript=1"/>
-</noscript>
-</head>
+      // Lee un parámetro de la URL (?utm_campaign=...)
+      function getQueryParam(name) {
+        const params = new URLSearchParams(window.location.search);
+        const v = params.get(name);
+        return v ? decodeURIComponent(v) : null;
+      }
 
-<body>
+      // Normaliza la UTM para el código (sin espacios/símbolos raros)
+      function normalizeUtm(v) {
+        return String(v || "")
+          .trim()
+          .replace(/\s+/g, "_")
+          .replace(/[^A-Za-z0-9_-]/g, "")
+          || "ORG";
+      }
 
-<div class="container background-image">
-  <div class="overlay"></div>
-  <div class="content">
+      // Persistimos utm_campaign si viene en la URL
+      (function persistUTM() {
+        const utmFromUrl = getQueryParam("utm_campaign");
+        if (utmFromUrl) {
+          localStorage.setItem("utm_campaign", utmFromUrl);
+        }
+      })();
 
-    <img src="imagenes/logo.PNG"
-         class="logo"
-         width="240"
-         height="120"
-         alt="DON SOCIAL"
-         decoding="async"
-         fetchpriority="high" />
+      // Obtiene utm_campaign (URL > localStorage > "ORG")
+      function getUTMCampaign() {
+        return getQueryParam("utm_campaign") || localStorage.getItem("utm_campaign") || "ORG";
+      }
 
-    <p class="title">
-      Envíanos un WhatsApp<br />
-      para crear tu cuenta
-    </p>
+      document.getElementById("whatsappButton").addEventListener("click", function () {
+        const numeros = [
+          "5493516768842"  // Juana 2
+          ];
+        
+        const telefono = numeros[Math.floor(Math.random() * numeros.length)];
 
-    <a class="whatsapp-button" id="whatsappButton">
-      <span>¡Contactá ya!</span>
-      <img src="imagenes/whatsapp.png"
-           alt="whatsapp"
-           class="whatsapp-icon"
-           width="24"
-           height="24"
-           decoding="async"
-           loading="lazy" />
-    </a>
+        const utm = normalizeUtm(getUTMCampaign());
+        const codigo = `${LANDING_PREFIX}-${utm}`;
 
-    <p class="subtitle">
-      Sin Límite de retiro<br />
-      Sin Cronogramas<br />
-      Ganás y cobrás a cualquier hora
-    </p>
+        const variantes = [
+          `¡Hola! Vi este anuncio, ¿me pasás info?`,
+          `Hola! Vi el anuncio, ¿podés darme más info?`,
+          `Buenas! ¿Me contás un poco más del anuncio?`,
+          `Hola! Quisiera saber más sobre lo que ofrecen.`,
+          `Buenas! ¿Me das más detalles, por favor?`,
+          `Hola! Estoy interesado/a, ¿cómo funciona todo?`,
+          `Hola! Vi tu publicación, ¿podrías ampliarme la info?`,
+          `Buenas! ¿Me podrías pasar información?`,
+          `Hola! Estoy viendo el anuncio, ¿me das más datos?`,
+          `Buenas! Me interesa, ¿podrías contarme más?`,
+          `Hola! ¿Cómo hago para empezar?`,
+          `Buenas! ¿Me compartís info para sumarme?`,
+          `Hola! ¿Tenés más detalles del anuncio?`,
+          `Buenas! Quiero más info, gracias.`,
+          `Hola! Me interesa, ¿me explicás un poco?`,
+          `Buenas! ¿Qué pasos tengo que seguir?`,
+          `Hola! Vi el aviso, ¿me das info?`,
+          `Buenas! Estoy interesado/a, ¿me pasás detalles?`,
+          `Hola! ¿Me contás de qué se trata?`,
+          `Buenas! Quiero saber más, ¿me ayudás?`,
+          `Hola! ¿Podrías darme un poco más de información?`,
+          `Buenas! Estoy viendo el anuncio, ¿me explicás?`,
+          `Hola! Estoy interesado/a, ¿cómo es el proceso?`,
+          `Buenas! Me gustaría saber más antes de avanzar.`,
+          `Hola! Vi esto, ¿me pasás más data?`,
+          `Buenas! ¿Me podrías orientar un poco?`,
+          `Hola! Quiero saber más, ¿me contás?`,
+          `Buenas! Estoy averiguando, ¿tenés más info?`,
+          `Hola! ¿Cómo hago para continuar?`,
+          `Buenas! Estoy interesado/a, ¿cómo funciona?`,
+          `Hola! Vi tu anuncio, ¿me das más información?`,
+          `Buenas! Estoy viendo esto, ¿me ayudás con más detalles?`,
+          `Hola! Me interesa, ¿cómo sigo?`,
+          `Buenas! ¿Me explicarías cómo es todo?`,
+          `Hola! ¿Podrías ampliarme los detalles?`,
+          `Buenas! Quisiera saber un poco más.`,
+          `Hola! ¿Cómo puedo empezar?`,
+          `Buenas! Me llamó la atención, ¿me contás más?`,
+          `Hola! ¿Me pasás info para avanzar?`,
+          `Buenas! ¿Tenés más detalles para compartir?`,
+          `Hola! Estoy interesado/a, ¿cómo sería todo?`,
+          `Buenas! Vi tu publicación, ¿me das más datos?`,
+          `Hola! Quiero saber cómo funciona, ¿me explicás?`,
+          `Buenas! Vi esto, ¿cómo puedo seguir?`,
+          `Hola! ¿Me indicarías cómo funciona todo esto?`,
+          `Buenas! ¿Me das info para continuar?`,
+          `Hola! Me interesa mucho, ¿me contás un poco?`,
+          `Buenas! Necesito un poco más de info, ¿podés ayudarme?`,
+          `Hola! ¿Qué tengo que hacer para empezar?`
+        ];
 
-    <p class="description">-RED OFICIAL: DON SOCIAL 32-</p>
+        const mensajeBase = variantes[Math.floor(Math.random() * variantes.length)];
+        const mensaje = mensajeBase;
+        const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
 
-  </div>
-</div>
+        // 🔵 Evento estándar "Contact" por código
+        if (window.fbq) {
+          fbq('track', 'Contact', {
+            content_name: 'CTA WhatsApp',
+            content_category: 'LeadGen'
+          });
+        }
 
-<script>
-const LANDING_PREFIX = "DS3";
-
-function getQueryParam(name){
-  const params = new URLSearchParams(window.location.search);
-  const v = params.get(name);
-  return v ? decodeURIComponent(v) : null;
-}
-
-function normalizeUtm(v){
-  return String(v || "")
-    .trim()
-    .replace(/\s+/g, "_")
-    .replace(/[^A-Za-z0-9_-]/g, "")
-    || "ORG";
-}
-
-(function persistUTM(){
-  const utmFromUrl = getQueryParam("utm_campaign");
-  if(utmFromUrl){
-    localStorage.setItem("utm_campaign", utmFromUrl);
-  }
-})();
-
-function getUTMCampaign(){
-  return getQueryParam("utm_campaign")
-    || localStorage.getItem("utm_campaign")
-    || "ORG";
-}
-
-document.getElementById("whatsappButton").addEventListener("click", function(){
-
-  const numeros = [
-  "5493516816154",  // Diana P 3WB
-  "5493516510622",  // Diana P 4WB
-  "5493516816282",  // Diana P 3WC
-  "5493516816154",  // Diana P 3WB
-  "5493516510622",  // Diana P 4WB
-  "5493516816282",  // Diana P 3WC
-  "5493516816282",  // Diana P 3WC
-  "5493516510622",  // Diana P 4WB
-  "5493513772613",  // Foxy 67
-  "5493513772539",  // Foxy 19
-  "5493513772519",  // Foxy 18
-  "5493513772613",  // Foxy 67
-  "5493513772539",  // Foxy 19
-  "5493513772519",  // Foxy 18
-  "5493513772613",  // Foxy 67
-  "5493513772539",  // Foxy 19
-  "5493516768842",  // Juana 2
-  "5493516783675",  // Juana 3
-  "5493516768842",  // Juana 2
-  "5493516783675",  // Juana 3
-  "5493562548623",  // ElCania
-  "5493562551239",  // Barquito
-  "5493516565147",  // TV
-  "5493516766380",  // Millo
-  "5493518625849",  // Cunia
-  "5493518625849",  // Cunia
-  "5493562517984",  // Niko
-  "5493562517984"   // Niko
-  //"5493518157247"  // Todo Moda
-];
-
-  const telefono = numeros[Math.floor(Math.random() * numeros.length)];
-
-  const utm = normalizeUtm(getUTMCampaign());
-  const codigo = `${LANDING_PREFIX}-${utm}`;
-
-  const variantes = [
-    `¡Hola! Vi este anuncio, ¿me pasás info? ${codigo}`,
-    `Hola! Vi el anuncio, ¿podés darme más info? ${codigo}`,
-    `Buenas! Me contás un poco más del anuncio? ${codigo}`,
-    `Hola! ¿Cómo hago para empezar? ${codigo}`,
-    `Buenas! ¿Me compartís info para sumarme? ${codigo}`
-  ];
-
-  const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
-  const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-
-  window.open(link, "_blank", "noopener");
-});
-</script>
-
-</body>
+        // Pequeño delay para asegurar envío antes de abrir WhatsApp
+        setTimeout(() => window.open(link, "_blank", "noopener"), 200);
+      });
+    </script>
+  </body>
 </html>
