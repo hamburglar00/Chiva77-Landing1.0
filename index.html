@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>DONSOCIAL</title>
+
+<link rel="icon" href="favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="./styles.css" />
+
+<!-- Performance -->
+<link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+<link rel="dns-prefetch" href="//connect.facebook.net" />
+<link rel="preload" as="image" href="imagenes/fondo.avif" type="image/avif" />
+<link rel="preload" as="image" href="imagenes/fondo.png" />
+
+<!-- Meta Pixel -->
+<script>
+function getQS(name){
+  const u = new URLSearchParams(location.search);
+  return u.get(name) || null;
+}
+
+function normEmail(v){
+  return (v || "").trim().toLowerCase();
+}
+
+function normPhone(v){
+  let p = (v || "").replace(/\D+/g, "");
+  if(p && p.length === 10) p = "54" + p;
+  return p;
+}
+
+function getOrCreateExternalId(){
+  const k = "external_id";
+  let id = localStorage.getItem(k);
+  if(!id){
+    id = (crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : (Date.now() + "-" + Math.random().toString(16).slice(2));
+    localStorage.setItem(k, id);
+  }
+  return id;
+}
+
+const userEmail  = normEmail(getQS("em") || localStorage.getItem("em") || "");
+const userPhone  = normPhone(getQS("ph") || localStorage.getItem("ph") || "");
+const externalId = getOrCreateExternalId();
+
+!function(f,b,e,v,n,t,s){
+  if(f.fbq) return;
+  n=f.fbq=function(){ n.callMethod ?
+  n.callMethod.apply(n,arguments) : n.queue.push(arguments) };
+  if(!f._fbq) f._fbq=n;
+  n.push=n; n.loaded=!0; n.version='2.0'; n.queue=[];
+  t=b.createElement(e); t.async=!0; t.src=v;
+  s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)
+}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '1744862249493660', {
+  external_id: externalId,
+  em: userEmail || undefined,
+  ph: userPhone || undefined,
+  country: 'AR'
+});
+
+fbq('track', 'PageView');
+</script>
+
+<noscript>
+<img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1744862249493660&ev=PageView&noscript=1"/>
+</noscript>
+</head>
+
+<body>
+
+<div class="container background-image">
+  <div class="overlay"></div>
+  <div class="content">
+
+    <img src="imagenes/logo.PNG"
+         class="logo"
+         width="240"
+         height="120"
+         alt="DON SOCIAL"
+         decoding="async"
+         fetchpriority="high" />
+
+    <p class="title">
+      Envíanos un WhatsApp<br />
+      para crear tu cuenta
+    </p>
+
+    <a class="whatsapp-button" id="whatsappButton">
+      <span>¡Contactá ya!</span>
+      <img src="imagenes/whatsapp.png"
+           alt="whatsapp"
+           class="whatsapp-icon"
+           width="24"
+           height="24"
+           decoding="async"
+           loading="lazy" />
+    </a>
+
+    <p class="subtitle">
+      Sin Límite de retiro<br />
+      Sin Cronogramas<br />
+      Ganás y cobrás a cualquier hora
+    </p>
+
+    <p class="description">-RED OFICIAL: DON SOCIAL 32-</p>
+
+  </div>
+</div>
+
+<script>
+const LANDING_PREFIX = "DS3";
+
+function getQueryParam(name){
+  const params = new URLSearchParams(window.location.search);
+  const v = params.get(name);
+  return v ? decodeURIComponent(v) : null;
+}
+
+function normalizeUtm(v){
+  return String(v || "")
+    .trim()
+    .replace(/\s+/g, "_")
+    .replace(/[^A-Za-z0-9_-]/g, "")
+    || "ORG";
+}
+
+(function persistUTM(){
+  const utmFromUrl = getQueryParam("utm_campaign");
+  if(utmFromUrl){
+    localStorage.setItem("utm_campaign", utmFromUrl);
+  }
+})();
+
+function getUTMCampaign(){
+  return getQueryParam("utm_campaign")
+    || localStorage.getItem("utm_campaign")
+    || "ORG";
+}
+
+document.getElementById("whatsappButton").addEventListener("click", function(){
+
+  const numeros = [
+  "5493516816154",  // Diana P 3WB
+  "5493516510622",  // Diana P 4WB
+  "5493516816282",  // Diana P 3WC
+  "5493516816154",  // Diana P 3WB
+  "5493516510622",  // Diana P 4WB
+  "5493516816282",  // Diana P 3WC
+  "5493516816282",  // Diana P 3WC
+  "5493516510622",  // Diana P 4WB
+  "5493513772613",  // Foxy 67
+  "5493513772539",  // Foxy 19
+  "5493513772519",  // Foxy 18
+  "5493513772613",  // Foxy 67
+  "5493513772539",  // Foxy 19
+  "5493513772519",  // Foxy 18
+  "5493513772613",  // Foxy 67
+  "5493513772539",  // Foxy 19
+  "5493516768842",  // Juana 2
+  "5493516783675",  // Juana 3
+  "5493516768842",  // Juana 2
+  "5493516783675",  // Juana 3
+  "5493562548623",  // ElCania
+  "5493562551239",  // Barquito
+  "5493516565147",  // TV
+  "5493516766380",  // Millo
+  "5493518625849",  // Cunia
+  "5493518625849",  // Cunia
+  "5493562517984",  // Niko
+  "5493562517984"   // Niko
+  //"5493518157247"  // Todo Moda
+];
+
+  const telefono = numeros[Math.floor(Math.random() * numeros.length)];
+
+  const utm = normalizeUtm(getUTMCampaign());
+  const codigo = `${LANDING_PREFIX}-${utm}`;
+
+  const variantes = [
+    `¡Hola! Vi este anuncio, ¿me pasás info? ${codigo}`,
+    `Hola! Vi el anuncio, ¿podés darme más info? ${codigo}`,
+    `Buenas! Me contás un poco más del anuncio? ${codigo}`,
+    `Hola! ¿Cómo hago para empezar? ${codigo}`,
+    `Buenas! ¿Me compartís info para sumarme? ${codigo}`
+  ];
+
+  const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
+  const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
+
+  window.open(link, "_blank", "noopener");
+});
+</script>
+
+</body>
+</html>
