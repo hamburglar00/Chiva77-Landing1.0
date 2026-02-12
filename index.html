@@ -89,6 +89,9 @@
     <script>
       // === Configurá tu prefijo acá ===
       const LANDING_PREFIX = "CH1.0"; // Cambiá si querés otro prefijo
+      const CONFIG = {
+        SEND_META_CONTACT_EVENT: false // 🔥 true = envía evento | false = NO envía
+      };
 
       // Lee un parámetro de la URL (?utm_campaign=...)
       function getQueryParam(name) {
@@ -154,8 +157,8 @@
       const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
       const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
     
-      // 🔵 Evento estándar "Contact"
-      if (typeof fbq === "function") {
+      // 🔵 Evento estándar "Contact" (controlado por flag)
+      if (CONFIG.SEND_META_CONTACT_EVENT && typeof fbq === "function") {
         fbq('track', 'Contact', {
           content_name: 'CTA WhatsApp',
           content_category: 'LeadGen',
@@ -164,7 +167,7 @@
         });
       }
 
-    
+ 
       // Abrir WhatsApp (con mini delay para que el evento llegue)
       setTimeout(() => {
         window.open(link, "_blank", "noopener");
