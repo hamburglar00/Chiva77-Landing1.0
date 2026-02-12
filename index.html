@@ -157,13 +157,28 @@
       const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
       const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
     
-      // 🔵 Evento estándar "Contact" (controlado por flag)
+            // 🔵 Evento estándar "Contact" (controlado por flag)
       if (CONFIG.SEND_META_CONTACT_EVENT && typeof fbq === "function") {
         fbq('track', 'Contact', {
+          // 🔹 Datos de usuario (matching avanzado - CRÍTICOS)
+          em: userEmail || undefined,
+          ph: userPhone || undefined,
+          external_id: externalId,
+
+          // 🔹 Datos del evento / contenido
           content_name: 'CTA WhatsApp',
           content_category: 'LeadGen',
+
+          // 🔹 Datos de campaña / tracking
           utm_campaign: utm,
-          code: codigo
+          code: codigo,
+
+          // 🔹 Contexto adicional
+          source: 'WhatsApp',
+          method: 'Click'
+
+          // ❌ NO incluir value ni currency aquí
+          // (los valores económicos van en Lead/Purchase de la landing 1.5)
         });
       }
 
