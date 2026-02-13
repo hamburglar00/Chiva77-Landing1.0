@@ -5,69 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DONSOCIAL</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="./styles.css" />
 
-    <!-- Performance: adelanta conexión con el Pixel -->
+    <!-- Critical CSS: primer pintado sin esperar styles.css -->
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;} html,body{height:100%;}
+      body{font-family:Arial,Helvetica,sans-serif;color:#fff;background:#000;-webkit-font-smoothing:antialiased;}
+      .background-image{background-color:#000;background-image:url("imagenes/fondo.avif");background-size:cover;background-position:center;background-repeat:no-repeat;width:100%;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;}
+      .overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);}
+      .content{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;padding:18px 14px;width:min(92vw,520px);}
+      .logo{width:250px;height:250px;object-fit:contain;display:block;}
+      .title{margin:10px 0 15px;font-size:22px;font-weight:800;line-height:1.15;}
+      .subtitle{font-size:19px;margin-top:40px;line-height:1.25;}
+      .description{color:gold;font-size:14px;font-weight:800;margin:35px 0 50px;}
+      .whatsapp-button{position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(145deg,#155c3d,#0e2d1e);color:#fff;font-size:28px;font-weight:900;padding:20px;border:3px solid #fff;border-radius:10px;text-decoration:none;margin-top:25px;min-width:250px;box-shadow:0 0 30px 8px rgba(255,215,0,.70),0 10px 22px rgba(0,0,0,.45);animation:heartbeat 2s infinite ease-in-out;transition:transform .16s ease;will-change:transform;-webkit-tap-highlight-color:transparent;user-select:none;}
+      .whatsapp-button:active{transform:scale(.97);}
+      .whatsapp-button::before{content:"";position:absolute;inset:0;width:50%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-150%) skewX(-25deg);animation:shineX 3.8s infinite;pointer-events:none;}
+      .whatsapp-icon{width:30px;height:30px;display:block;}
+      @keyframes shineX{from{transform:translateX(-150%) skewX(-25deg);}to{transform:translateX(300%) skewX(-25deg);}}
+      @keyframes heartbeat{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+    </style>
+    <!-- CSS completo (no bloquea primer pintado) -->
+    <link rel="stylesheet" href="./styles.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="./styles.css"></noscript>
+
+    <!-- Performance -->
     <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
     <link rel="dns-prefetch" href="//connect.facebook.net" />
-
-    <!-- Performance: precarga imagen de fondo del hero (cambiá el href si tu archivo es otro) -->
     <link rel="preload" as="image" href="imagenes/fondo.avif" type="image/avif" fetchpriority="high" />
 
-    <!-- Meta Pixel Code (con coincidencias avanzadas manuales) -->
-<script>
-  // Utilidades
-  function getQS(name){ const u=new URLSearchParams(location.search); return u.get(name)||null }
-  function normEmail(v){ return (v||"").trim().toLowerCase() }
-  function normPhone(v){
-    // deja solo dígitos; si es AR agrega 54 si faltara
-    let p=(v||"").replace(/\D+/g,"");
-    if(p && p.length===10) p="54"+p; // opcional, ajustá a tu necesidad
-    return p;
-  }
-  function getOrCreateExternalId(){
-    const k="external_id";
-    let id=localStorage.getItem(k);
-    if(!id){
-      id=(crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()+"-"+Math.random().toString(16).slice(2));
-      localStorage.setItem(k,id);
-    }
-    return id;
-  }
-
-  // Datos de usuario disponibles (querystring o localStorage)
-  const userEmail  = normEmail( getQS("em") || localStorage.getItem("em") || "" );
-  const userPhone  = normPhone( getQS("ph") || localStorage.getItem("ph") || "" );
-  const externalId = getOrCreateExternalId();
-
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-
-  fbq('init', '1459000075661483', {
-    external_id: externalId,
-    em: userEmail || undefined,
-    ph: userPhone || undefined,
-    country: 'AR'
-  });
-
-  fbq('track', 'PageView');
-</script>
-<noscript>
-  <img height="1" width="1" style="display:none"
-       src="https://www.facebook.com/tr?id=1459000075661483&ev=PageView&noscript=1"/>
-</noscript>
-<!-- End Meta Pixel Code -->
-    
+    <!-- Meta Pixel: stub en head (no bloquea), init/track después del primer pintado -->
+    <script>
+      (function(){
+        window.fbq=function(){ (window.fbq.queue=window.fbq.queue||[]).push(arguments); };
+        window.fbq.queue=[];
+        setTimeout(function(){
+          function normEmail(v){return (v||"").trim().toLowerCase();}
+          function normPhone(v){var p=(v||"").replace(/\D+/g,"");if(p&&p.length===10)p="54"+p;return p;}
+          function getOrCreateExternalId(){var k="external_id";var id=localStorage.getItem(k);if(!id){id=(window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():(Date.now()+"-"+Math.random().toString(16).slice(2));localStorage.setItem(k,id);}return id;}
+          function getQS(name){return new URLSearchParams(location.search).get(name)||null;}
+          window.userEmail=normEmail(getQS("em")||localStorage.getItem("em")||"");
+          window.userPhone=normPhone(getQS("ph")||localStorage.getItem("ph")||"");
+          window.externalId=getOrCreateExternalId();
+          var t=document.createElement("script");t.async=true;t.src="https://connect.facebook.net/en_US/fbevents.js";(document.head||document.documentElement).appendChild(t);
+          fbq("init","1459000075661483",{external_id:window.externalId,em:window.userEmail||void 0,ph:window.userPhone||void 0,country:"AR"});
+          fbq("track","PageView");
+        },0);
+      })();
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1459000075661483&ev=PageView&noscript=1"/></noscript>
   </head>
 
   <body>
     <div class="container background-image">
       <div class="overlay"></div>
       <div class="content">
-        <!-- Logo PNG -->
         <img src="imagenes/logo.png" class="logo" width="240" height="120"
              alt="DON SOCIAL" decoding="async" fetchpriority="high" />
 
@@ -149,9 +141,9 @@
         try {
           if (typeof fbq === "function") {
             fbq('track', 'Contact', {
-              em: userEmail || undefined,
-              ph: userPhone || undefined,
-              external_id: externalId,
+              em: window.userEmail || undefined,
+              ph: window.userPhone || undefined,
+              external_id: window.externalId,
               content_name: 'CTA WhatsApp',
               content_category: 'LeadGen',
               utm_campaign: utm,
