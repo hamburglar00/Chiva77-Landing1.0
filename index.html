@@ -46,12 +46,11 @@
   t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
 
-  // ⬇️ ACTIVÁS COINCIDENCIAS AVANZADAS ACÁ (tercer parámetro)
   fbq('init', '1459000075661483', {
-    external_id: externalId,        // siempre
-    em: userEmail || undefined,     // opcional si tenés email
-    ph: userPhone || undefined,     // opcional si tenés teléfono
-    country: 'AR'                   // opcional
+    external_id: externalId,
+    em: userEmail || undefined,
+    ph: userPhone || undefined,
+    country: 'AR'
   });
 
   fbq('track', 'PageView');
@@ -74,121 +73,98 @@
 
         <p class="title">Envianos un WhatsApp<br />para crear tu cuenta</p>
 
-        <a class="whatsapp-button" id="whatsappButton">
+        <a class="whatsapp-button" id="whatsappButton" href="#" rel="noopener noreferrer" aria-label="Crear usuario por WhatsApp">
           <span>¡Contactá ya!</span>
           <img src="imagenes/whatsapp.png" alt="whatsapp"
                class="whatsapp-icon" width="24" height="24" decoding="async" loading="lazy" />
         </a>
 
-        <p class="subtitle">Sín Límite de retiro<br />Sín Cronogramas<br />Ganás y cobrás a cualquier hora</p>
+        <p class="subtitle">Sin Límite de retiro<br />Sin Cronogramas<br />Ganás y cobrás a cualquier hora</p>
         <p class="description">-RED OFICIAL: DON SOCIAL 32-</p>
       </div>
     </div>
 
-    <!-- Script WhatsApp con utm_campaign -> "Prefijo-UTM" -->
     <script>
-      // === Configurá tu prefijo acá ===
-      const LANDING_PREFIX = "CH1.0"; // Cambiá si querés otro prefijo
-      const CONFIG = {
-        SEND_META_CONTACT_EVENT: false // 🔥 true = envía evento | false = NO envía
-      };
+      const LANDING_PREFIX = "CH1.0";
 
-      // Lee un parámetro de la URL (?utm_campaign=...)
       function getQueryParam(name) {
         const params = new URLSearchParams(window.location.search);
         const v = params.get(name);
         return v ? decodeURIComponent(v) : null;
       }
 
-      // Normaliza la UTM para el código (sin espacios/símbolos raros)
       function normalizeUtm(v) {
-        return String(v || "")
-          .trim()
-          .replace(/\s+/g, "_")          // espacios -> _
-          .replace(/[^A-Za-z0-9_-]/g, "") // quita símbolos raros
-          || "ORG";
+        return String(v || "").trim().replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "") || "ORG";
       }
 
-      // Persistimos utm_campaign si viene en la URL
+      function generateUUID(){
+        return crypto?.randomUUID?.() || "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16)});
+      }
+
       (function persistUTM() {
         const utmFromUrl = getQueryParam("utm_campaign");
-        if (utmFromUrl) {
-          localStorage.setItem("utm_campaign", utmFromUrl);
-        }
+        if (utmFromUrl) localStorage.setItem("utm_campaign", utmFromUrl);
       })();
 
-      // Obtiene utm_campaign (URL > localStorage > "ORGANICO")
       function getUTMCampaign() {
         return getQueryParam("utm_campaign") || localStorage.getItem("utm_campaign") || "ORG";
       }
 
-      document.getElementById("whatsappButton").addEventListener("click", function () {
-        
-      const numeros = ["5493516768842"];
-        
-      const telefono = numeros[Math.floor(Math.random() * numeros.length)];
-    
-      const utm = normalizeUtm(getUTMCampaign());
-      const codigo = `${LANDING_PREFIX}-${utm}`;
-    
-      const variantes = [
-        `¡Hola! Vi este anuncio, ¿me pasás info? ${codigo}`,
-        `Hola! Vi el anuncio, ¿podés darme más info? ${codigo}`,
-        `Buenas! Me contás un poco más del anuncio? ${codigo}`,
-        `Hola! Quisiera saber más sobre lo que ofrecen. ${codigo}`,
-        `Buenas! ¿Me das más detalles, por favor? ${codigo}`,
-        `Hola! Estoy interesado, ¿cómo funciona? ${codigo}`,
-        `Hola! Vi tu publicación, ¿podrías ampliarme la info? ${codigo}`,
-        `Buenas! ¿Me podrías pasar información? ${codigo}`,
-        `Hola! Estoy viendo el anuncio, ¿me das más datos? ${codigo}`,
-        `Buenas! Me interesa, ¿podrías contarme más? ${codigo}`,
-        `Hola! ¿Cómo hago para empezar? ${codigo}`,
-        `Buenas! ¿Me compartís info para sumarme? ${codigo}`,
-        `Hola! ¿Tenés más detalles del anuncio? ${codigo}`,
-        `Buenas! Quiero más info, gracias. ${codigo}`,
-        `Hola! Me interesa, ¿me explicás un poco? ${codigo}`,
-        `Buenas! ¿Qué pasos tengo que seguir? ${codigo}`,
-        `Hola! Vi el aviso, ¿me das info? ${codigo}`,
-        `Buenas! Estoy interesado/a, ¿me pasás detalles? ${codigo}`,
-        `Hola! ¿Me contás de qué se trata? ${codigo}`,
-        `Buenas! Quiero saber más, ¿me ayudás? ${codigo}`
-      ];
-    
-      const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
-      const link = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-    
-            // 🔵 Evento estándar "Contact" (controlado por flag)
-      if (CONFIG.SEND_META_CONTACT_EVENT && typeof fbq === "function") {
-        fbq('track', 'Contact', {
-          // 🔹 Datos de usuario (matching avanzado - CRÍTICOS)
-          em: userEmail || undefined,
-          ph: userPhone || undefined,
-          external_id: externalId,
+      document.getElementById("whatsappButton").addEventListener("click", function (e) {
+        e.preventDefault();
 
-          // 🔹 Datos del evento / contenido
-          content_name: 'CTA WhatsApp',
-          content_category: 'LeadGen',
+        const numeros = ["5493516768842"];
+        const telefono = numeros[Math.floor(Math.random() * numeros.length)];
 
-          // 🔹 Datos de campaña / tracking
-          utm_campaign: utm,
-          code: codigo,
+        const utm = normalizeUtm(getUTMCampaign());
+        const codigo = `${LANDING_PREFIX}-${utm}`;
 
-          // 🔹 Contexto adicional
-          source: 'WhatsApp',
-          method: 'Click'
+        const variantes = [
+          `¡Hola! Vi este anuncio, ¿me pasás info? ${codigo}`,
+          `Hola! Vi el anuncio, ¿podés darme más info? ${codigo}`,
+          `Buenas! Me contás un poco más del anuncio? ${codigo}`,
+          `Hola! Quisiera saber más sobre lo que ofrecen. ${codigo}`,
+          `Buenas! ¿Me das más detalles, por favor? ${codigo}`,
+          `Hola! Estoy interesado, ¿cómo funciona? ${codigo}`,
+          `Hola! Vi tu publicación, ¿podrías ampliarme la info? ${codigo}`,
+          `Buenas! ¿Me podrías pasar información? ${codigo}`,
+          `Hola! Estoy viendo el anuncio, ¿me das más datos? ${codigo}`,
+          `Buenas! Me interesa, ¿podrías contarme más? ${codigo}`,
+          `Hola! ¿Cómo hago para empezar? ${codigo}`,
+          `Buenas! ¿Me compartís info para sumarme? ${codigo}`,
+          `Hola! ¿Tenés más detalles del anuncio? ${codigo}`,
+          `Buenas! Quiero más info, gracias. ${codigo}`,
+          `Hola! Me interesa, ¿me explicás un poco? ${codigo}`,
+          `Buenas! ¿Qué pasos tengo que seguir? ${codigo}`,
+          `Hola! Vi el aviso, ¿me das info? ${codigo}`,
+          `Buenas! Estoy interesado/a, ¿me pasás detalles? ${codigo}`,
+          `Hola! ¿Me contás de qué se trata? ${codigo}`,
+          `Buenas! Quiero saber más, ¿me ayudás? ${codigo}`
+        ];
 
-          // ❌ NO incluir value ni currency aquí
-          // (los valores económicos van en Lead/Purchase de la landing 1.5)
-        });
-      }
+        const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
 
- 
-      // Abrir WhatsApp (con mini delay para que el evento llegue)
-      setTimeout(() => {
-        window.open(link, "_blank", "noopener");
-      }, 150);
-    });
+        // ✅ Evento Contact enriquecido con eventID y datos de usuario
+        const event_id = generateUUID();
+        try {
+          if (typeof fbq === "function") {
+            fbq('track', 'Contact', {
+              em: userEmail || undefined,
+              ph: userPhone || undefined,
+              external_id: externalId,
+              content_name: 'CTA WhatsApp',
+              content_category: 'LeadGen',
+              utm_campaign: utm,
+              code: codigo,
+              source: 'main_button',
+              method: 'Click'
+            }, { eventID: event_id });
+          }
+        } catch(_){}
 
+        // ✅ Redirect instantáneo (sin delay, sin pestaña nueva)
+        window.location.assign(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`);
+      });
     </script>
   </body>
 </html>
