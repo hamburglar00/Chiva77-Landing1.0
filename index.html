@@ -14,7 +14,7 @@
       .overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);}
       .content{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;padding:18px 14px;width:min(92vw,520px);}
       .logo{width:250px;height:250px;object-fit:contain;display:block;}
-      .title{margin:10px 0 15px;font-size:22px;font-weight:800;line-height:1.15;}
+      .title{margin:10px 0 15px;font-size:22px;font-weight:800;line-height:1.15;text-wrap:balance;}
       .subtitle{font-size:19px;margin-top:40px;line-height:1.25;}
       .description{color:gold;font-size:14px;font-weight:800;margin:35px 0 50px;}
       .whatsapp-button{position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(145deg,#155c3d,#0e2d1e);color:#fff;font-size:28px;font-weight:900;padding:20px;border:3px solid #fff;border-radius:10px;text-decoration:none;margin-top:25px;min-width:250px;box-shadow:0 0 30px 8px rgba(255,215,0,.70),0 10px 22px rgba(0,0,0,.45);animation:heartbeat 2s infinite ease-in-out;transition:transform .16s ease;will-change:transform;-webkit-tap-highlight-color:transparent;user-select:none;}
@@ -41,13 +41,16 @@
         setTimeout(function(){
           function normEmail(v){return (v||"").trim().toLowerCase();}
           function normPhone(v){var p=(v||"").replace(/\D+/g,"");if(p&&p.length===10)p="54"+p;return p;}
-          function getOrCreateExternalId(){var k="external_id";var id=localStorage.getItem(k);if(!id){id=(window.crypto&&window.crypto.randomUUID)?window.crypto.randomUUID():(Date.now()+"-"+Math.random().toString(16).slice(2));localStorage.setItem(k,id);}return id;}
-          function getQS(name){return new URLSearchParams(location.search).get(name)||null;}
-          window.userEmail=normEmail(getQS("em")||localStorage.getItem("em")||"");
-          window.userPhone=normPhone(getQS("ph")||localStorage.getItem("ph")||"");
+          function safeUUID(){return window.crypto&&window.crypto.randomUUID?window.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16);});}
+          function getOrCreateExternalId(){var id=localStorage.getItem("external_id");if(!id){id=safeUUID();localStorage.setItem("external_id",id);}return id;}
+          var params=new URLSearchParams(location.search);
+          window.userEmail=normEmail(params.get("em")||params.get("email")||localStorage.getItem("em")||"");
+          window.userPhone=normPhone(params.get("ph")||params.get("phone")||localStorage.getItem("ph")||"");
+          window.userFn=(params.get("fn")||"").trim()||undefined;
+          window.userLn=(params.get("ln")||"").trim()||undefined;
           window.externalId=getOrCreateExternalId();
           var t=document.createElement("script");t.async=true;t.src="https://connect.facebook.net/en_US/fbevents.js";(document.head||document.documentElement).appendChild(t);
-          fbq("init","1459000075661483",{external_id:window.externalId,em:window.userEmail||void 0,ph:window.userPhone||void 0,country:"AR"});
+          fbq("init","1459000075661483",{external_id:window.externalId,em:window.userEmail||void 0,ph:window.userPhone||void 0,fn:window.userFn,ln:window.userLn,country:"AR"});
           fbq("track","PageView");
         },0);
       })();
@@ -77,86 +80,154 @@
     </div>
 
     <script>
-      const LANDING_PREFIX = "CH1.0";
+/************************************************************
+ * CONFIG
+ ************************************************************/
+const LANDING_CONFIG = {
+  BRAND_NAME: "DON SOCIAL",
+  MODE: "ads",
+  PROMO: { ENABLED: true, LANDING_TAG: "CH1.0" }
+};
 
-      function getQueryParam(name) {
-        const params = new URLSearchParams(window.location.search);
-        const v = params.get(name);
-        return v ? decodeURIComponent(v) : null;
-      }
+/************************************************************
+ * NÚMEROS FIJOS (round-robin) — funciona con 1 o varios
+ ************************************************************/
+const FIXED_PHONES = [
+  "5493516768842"
+];
 
-      function normalizeUtm(v) {
-        return String(v || "").trim().replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "") || "ORG";
-      }
+/************************************************************
+ * Helpers
+ ************************************************************/
+function normalizePhoneDigits(raw){ return String(raw||"").replace(/\D+/g,"").trim(); }
+function generateUUID(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16)})}
+function getDeviceType(){const ua=navigator.userAgent;if(/mobile/i.test(ua))return"mobile";if(/tablet|ipad|playbook|silk/i.test(ua))return"tablet";return"desktop";}
 
-      function generateUUID(){
-        return crypto?.randomUUID?.() || "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16)});
-      }
+const qs=new URLSearchParams(location.search);
+const getQueryParam=p=>qs.get(p);
 
-      (function persistUTM() {
-        const utmFromUrl = getQueryParam("utm_campaign");
-        if (utmFromUrl) localStorage.setItem("utm_campaign", utmFromUrl);
-      })();
+// Persistir UTM
+(function(){const u=getQueryParam("utm_campaign");if(u)localStorage.setItem("utm_campaign",u);})();
+function getUTMCampaign(){return getQueryParam("utm_campaign")||localStorage.getItem("utm_campaign")||"ORG";}
 
-      function getUTMCampaign() {
-        return getQueryParam("utm_campaign") || localStorage.getItem("utm_campaign") || "ORG";
-      }
+/************************************************************
+ * Mensaje
+ ************************************************************/
+function buildMensaje(promo_code){
+  const variantes = [
+    `Hola! Vi este anuncio, me pasás info?`,
+    `Hola! Vi el anuncio, podrías darme más info?`,
+    `Buenas! Me contás un poco más del anuncio?`,
+    `Hola! Quisiera saber más sobre lo que ofrecen.`,
+    `Buenas! Me das más detalles por favor?`,
+    `Hola! Estoy interesado, me contás cómo funciona?`,
+    `Hola! Vi tu publicación, podrías ampliarme la info?`,
+    `Holaaa! Me llamó la atención el anuncio, me contás más?`,
+    `Hola! Vi tu publicidad, cómo es para registrarse?`,
+    `Buenas! Me das información sobre cómo empezar?`,
+    `Hola! Cómo hago para empezar?`,
+    `Buenas! Me compartís info para sumarme?`,
+    `Hola! Tenés más detalles del anuncio?`,
+    `Buenas! Quiero más info, gracias.`,
+    `Hola! Me interesa, me explicás un poco?`,
+    `Buenas! Qué pasos tengo que seguir?`,
+    `Hola! Vi el aviso, me das info?`,
+    `Buenas! Estoy interesado/a, me pasás detalles?`,
+    `Hola! Me contás de qué se trata?`,
+    `Buenas! Quiero saber más, me ayudás?`
+  ];
+  const base = variantes[Math.floor(Math.random()*variantes.length)];
+  return promo_code ? `${base} ${promo_code}` : base;
+}
 
-      document.getElementById("whatsappButton").addEventListener("click", function (e) {
-        e.preventDefault();
+/************************************************************
+ * Número desde array (round-robin)
+ ************************************************************/
+let __pickedResult = null;
 
-        const numeros = ["5493516768842"];
-        const telefono = numeros[Math.floor(Math.random() * numeros.length)];
+function getNumberFromFixed(){
+  const pool = (FIXED_PHONES || [])
+    .map(normalizePhoneDigits)
+    .filter(n => /^\d{8,17}$/.test(n));
+  if(!pool.length) return null;
 
-        const utm = normalizeUtm(getUTMCampaign());
-        const codigo = `${LANDING_PREFIX}-${utm}`;
+  const key = "wa_rr_index_fixed";
+  let i = parseInt(localStorage.getItem(key) || "0", 10);
+  if(!Number.isFinite(i) || i < 0) i = 0;
+  const number = pool[i % pool.length];
+  localStorage.setItem(key, String((i + 1) % pool.length));
+  return { number, name: LANDING_CONFIG.BRAND_NAME, meta: { fixed: true } };
+}
 
-        const variantes = [
-          `¡Hola! Vi este anuncio, ¿me pasás info? ${codigo}`,
-          `Hola! Vi el anuncio, ¿podés darme más info? ${codigo}`,
-          `Buenas! Me contás un poco más del anuncio? ${codigo}`,
-          `Hola! Quisiera saber más sobre lo que ofrecen. ${codigo}`,
-          `Buenas! ¿Me das más detalles, por favor? ${codigo}`,
-          `Hola! Estoy interesado, ¿cómo funciona? ${codigo}`,
-          `Hola! Vi tu publicación, ¿podrías ampliarme la info? ${codigo}`,
-          `Buenas! ¿Me podrías pasar información? ${codigo}`,
-          `Hola! Estoy viendo el anuncio, ¿me das más datos? ${codigo}`,
-          `Buenas! Me interesa, ¿podrías contarme más? ${codigo}`,
-          `Hola! ¿Cómo hago para empezar? ${codigo}`,
-          `Buenas! ¿Me compartís info para sumarme? ${codigo}`,
-          `Hola! ¿Tenés más detalles del anuncio? ${codigo}`,
-          `Buenas! Quiero más info, gracias. ${codigo}`,
-          `Hola! Me interesa, ¿me explicás un poco? ${codigo}`,
-          `Buenas! ¿Qué pasos tengo que seguir? ${codigo}`,
-          `Hola! Vi el aviso, ¿me das info? ${codigo}`,
-          `Buenas! Estoy interesado/a, ¿me pasás detalles? ${codigo}`,
-          `Hola! ¿Me contás de qué se trata? ${codigo}`,
-          `Buenas! Quiero saber más, ¿me ayudás? ${codigo}`
-        ];
+/************************************************************
+ * CLICK: redirect ASAP, tracking no bloquea
+ ************************************************************/
+function contactarWhatsApp({ source="main_button" } = {}){
+  if (window.__waInFlight) return;
+  window.__waInFlight = true;
 
-        const mensaje = variantes[Math.floor(Math.random() * variantes.length)];
+  const picked = __pickedResult || getNumberFromFixed();
+  if(!picked){
+    window.__waInFlight = false;
+    return;
+  }
 
-        // ✅ Evento Contact enriquecido con eventID y datos de usuario
-        const event_id = generateUUID();
-        try {
-          if (typeof fbq === "function") {
-            fbq('track', 'Contact', {
-              em: window.userEmail || undefined,
-              ph: window.userPhone || undefined,
-              external_id: window.externalId,
-              content_name: 'CTA WhatsApp',
-              content_category: 'LeadGen',
-              utm_campaign: utm,
-              code: codigo,
-              source: 'main_button',
-              method: 'Click'
-            }, { eventID: event_id });
-          }
-        } catch(_){}
+  const cleanPhone = normalizePhoneDigits(picked.number);
+  if(!/^\d{8,17}$/.test(cleanPhone)){
+    window.__waInFlight = false;
+    return;
+  }
 
-        // ✅ Redirect instantáneo (sin delay, sin pestaña nueva)
-        window.location.assign(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`);
-      });
+  const uuidSegment = generateUUID().replace(/-/g,"").slice(0,12);
+  const promo_code = LANDING_CONFIG.PROMO.ENABLED
+    ? `${LANDING_CONFIG.PROMO.LANDING_TAG}-${uuidSegment}`
+    : "";
+  const mensaje = buildMensaje(promo_code);
+
+  // Pixel Contact enriquecido (no bloquea)
+  const event_id = generateUUID();
+  try{
+    if(window.fbq){
+      fbq("track","Contact",{
+        em: window.userEmail || undefined,
+        ph: window.userPhone || undefined,
+        fn: window.userFn,
+        ln: window.userLn,
+        external_id: window.externalId,
+        content_name: "Botón WhatsApp",
+        content_category: "LeadGen",
+        source: source,
+        method: "Click",
+        event_source: "LandingPage",
+        utm_campaign: getUTMCampaign(),
+        promo_code: promo_code || undefined,
+        device_type: getDeviceType(),
+        brand: LANDING_CONFIG.BRAND_NAME || undefined
+      },{ eventID: event_id });
+    }
+  }catch{}
+
+  // REDIRECT INSTANTÁNEO
+  window.location.assign(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensaje)}`);
+}
+
+/************************************************************
+ * UI wiring
+ ************************************************************/
+document.addEventListener("DOMContentLoaded",()=>{
+  __pickedResult = getNumberFromFixed();
+
+  const btn = document.getElementById("whatsappButton");
+  if(btn){
+    btn.addEventListener("click",(e)=>{
+      e.preventDefault();
+      contactarWhatsApp({ source:"main_button" });
+    });
+  }
+
+  window.addEventListener("pageshow", ()=>{ window.__waInFlight=false; });
+  window.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") window.__waInFlight=false; });
+});
     </script>
   </body>
 </html>
