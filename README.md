@@ -10,7 +10,7 @@ Landing page estática optimizada para redirección instantánea a WhatsApp. Sin
 Usuario abre la landing
   → Pixel PageView (diferido, no bloquea)
   → Click botón
-    → Número seleccionado (round-robin local)
+    → Número seleccionado (aleatorio)
     → Promo code generado (UUID único)
     → Pixel Contact enriquecido (no bloquea)
     → Redirect instantáneo a wa.me
@@ -46,12 +46,13 @@ Tanto en `init` como en `Contact`, se envían datos enriquecidos si están dispo
 | `external_id` | `localStorage` | UUID generado en la primera visita, persiste |
 | `country` | Hardcodeado | `"AR"` |
 
-### Round-Robin de números
+### Selección aleatoria de números
 
 - Los números están hardcodeados en el array `FIXED_PHONES`.
-- Se rotan usando un índice guardado en `localStorage` (key: `wa_rr_index_fixed`).
+- Se elige uno al azar con `Math.random()` en cada visita.
 - Funciona con 1 número o con varios.
 - La selección es síncrona e instantánea.
+- Cada usuario recibe un número aleatorio independiente, distribuyendo el tráfico de forma pareja entre todos los números.
 
 ### Promo Code
 
@@ -109,7 +110,7 @@ const LANDING_CONFIG = {
 
 ```javascript
 const FIXED_PHONES = [
-  "5493516768842"       // Agregar más números para round-robin
+  "5493516768842"       // Agregar más números para distribución aleatoria
 ];
 ```
 
