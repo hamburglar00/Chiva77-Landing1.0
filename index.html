@@ -1,148 +1,229 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Redirección WhatsApp</title>
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      color: #fff;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GERALDINA</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- Critical CSS: primer pintado sin esperar styles.css -->
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box;} html,body{height:100%;}
+      body{font-family:Arial,Helvetica,sans-serif;color:#fff;background:#000;-webkit-font-smoothing:antialiased;}
+      .background-image{background-color:#000;background-image:url("imagenes/fondo.avif");background-size:cover;background-position:center;background-repeat:no-repeat;width:100%;min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;}
+      .overlay{position:absolute;inset:0;background:rgba(0,0,0,.7);}
+      .content{position:relative;text-align:center;display:flex;flex-direction:column;align-items:center;padding:18px 14px;width:min(92vw,520px);}
+      .logo{width:250px;height:250px;object-fit:contain;display:block;}
+      .title{margin:10px 0 15px;font-size:22px;font-weight:800;line-height:1.15;text-wrap:balance;}
+      .subtitle{font-size:19px;margin-top:40px;line-height:1.25;}
+      .description{color:gold;font-size:14px;font-weight:800;margin:35px 0 50px;}
+      .whatsapp-button{position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(145deg,#155c3d,#0e2d1e);color:#fff;font-size:28px;font-weight:900;padding:20px;border:3px solid #fff;border-radius:10px;text-decoration:none;margin-top:25px;min-width:250px;box-shadow:0 0 30px 8px rgba(255,215,0,.70),0 10px 22px rgba(0,0,0,.45);animation:heartbeat 2s infinite ease-in-out;transition:transform .16s ease;will-change:transform;-webkit-tap-highlight-color:transparent;user-select:none;}
+      .whatsapp-button:active{transform:scale(.97);}
+      .whatsapp-button::before{content:"";position:absolute;inset:0;width:50%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-150%) skewX(-25deg);animation:shineX 3.8s infinite;pointer-events:none;}
+      .whatsapp-icon{width:30px;height:30px;display:block;}
+      @keyframes shineX{from{transform:translateX(-150%) skewX(-25deg);}to{transform:translateX(300%) skewX(-25deg);}}
+      @keyframes heartbeat{0%,100%{transform:scale(1);}50%{transform:scale(1.03);}}
+    </style>
+    <!-- CSS completo (no bloquea primer pintado) -->
+    <link rel="stylesheet" href="./styles.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="./styles.css"></noscript>
+
+    <!-- Performance -->
+    <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+    <link rel="dns-prefetch" href="//connect.facebook.net" />
+    <link rel="preload" as="image" href="imagenes/fondo.avif" type="image/avif" fetchpriority="high" />
+
+    <!-- Meta Pixel: stub en head (no bloquea), init/track después del primer pintado -->
+    <script>
+      (function(){
+        window.fbq=function(){ (window.fbq.queue=window.fbq.queue||[]).push(arguments); };
+        window.fbq.queue=[];
+        setTimeout(function(){
+          function normEmail(v){return (v||"").trim().toLowerCase();}
+          function normPhone(v){var p=(v||"").replace(/\D+/g,"");if(p&&p.length===10)p="54"+p;return p;}
+          function safeUUID(){return window.crypto&&window.crypto.randomUUID?window.crypto.randomUUID():"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16);});}
+          function getOrCreateExternalId(){var id=localStorage.getItem("external_id");if(!id){id=safeUUID();localStorage.setItem("external_id",id);}return id;}
+          var params=new URLSearchParams(location.search);
+          window.userEmail=normEmail(params.get("em")||params.get("email")||localStorage.getItem("em")||"");
+          window.userPhone=normPhone(params.get("ph")||params.get("phone")||localStorage.getItem("ph")||"");
+          window.userFn=(params.get("fn")||"").trim()||undefined;
+          window.userLn=(params.get("ln")||"").trim()||undefined;
+          window.externalId=getOrCreateExternalId();
+          var t=document.createElement("script");t.async=true;t.src="https://connect.facebook.net/en_US/fbevents.js";(document.head||document.documentElement).appendChild(t);
+          fbq("init","TU_PIXEL_ID",{external_id:window.externalId,em:window.userEmail||void 0,ph:window.userPhone||void 0,fn:window.userFn,ln:window.userLn,country:"AR"});
+          fbq("track","PageView");
+        },0);
+      })();
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=TU_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+  </head>
+
+  <body>
+    <div class="container background-image">
+      <div class="overlay"></div>
+      <div class="content">
+        <img src="imagenes/logo.png" class="logo" width="240" height="120"
+             alt="GERALDINA" decoding="async" fetchpriority="high" />
+
+        <p class="title">Envianos un WhatsApp<br />para crear tu cuenta</p>
+
+        <a class="whatsapp-button" id="whatsappButton" href="#" rel="noopener noreferrer" aria-label="Crear usuario por WhatsApp">
+          <span>¡Contactá ya!</span>
+          <img src="imagenes/whatsapp.png" alt="whatsapp"
+               class="whatsapp-icon" width="24" height="24" decoding="async" loading="lazy" />
+        </a>
+
+        <p class="subtitle">Sin Límite de retiro<br />Sin Cronogramas<br />Ganás y cobrás a cualquier hora</p>
+        <p class="description">-RED OFICIAL: GERALDINA-</p>
+      </div>
+    </div>
+
+    <script>
+/************************************************************
+ * CONFIG
+ ************************************************************/
+const LANDING_CONFIG = {
+  BRAND_NAME: "GERALDINA",
+  MODE: "ads",
+  PROMO: { ENABLED: true, LANDING_TAG: "CH1.0" }
+};
+
+/************************************************************
+ * NÚMEROS FIJOS (aleatorio) — funciona con 1 o varios
+ ************************************************************/
+const FIXED_PHONES = [
+  "549" // COMPLETAR NUMERO DE TELEFONO 
+];
+
+/************************************************************
+ * Helpers
+ ************************************************************/
+function normalizePhoneDigits(raw){ return String(raw||"").replace(/\D+/g,"").trim(); }
+function generateUUID(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==="x"?r:r&0x3|0x8;return v.toString(16)})}
+function getDeviceType(){const ua=navigator.userAgent;if(/mobile/i.test(ua))return"mobile";if(/tablet|ipad|playbook|silk/i.test(ua))return"tablet";return"desktop";}
+
+const qs=new URLSearchParams(location.search);
+const getQueryParam=p=>qs.get(p);
+
+// Persistir UTM
+(function(){const u=getQueryParam("utm_campaign");if(u)localStorage.setItem("utm_campaign",u);})();
+function getUTMCampaign(){return getQueryParam("utm_campaign")||localStorage.getItem("utm_campaign")||"ORG";}
+
+/************************************************************
+ * Mensaje
+ ************************************************************/
+function buildMensaje(promo_code){
+  const variantes = [
+    `Hola! Vi este anuncio, me pasás info?`,
+    `Hola! Vi el anuncio, podrías darme más info?`,
+    `Buenas! Me contás un poco más del anuncio?`,
+    `Hola! Quisiera saber más sobre lo que ofrecen.`,
+    `Buenas! Me das más detalles por favor?`,
+    `Hola! Estoy interesado, me contás cómo funciona?`,
+    `Hola! Vi tu publicación, podrías ampliarme la info?`,
+    `Holaaa! Me llamó la atención el anuncio, me contás más?`,
+    `Hola! Vi tu publicidad, cómo es para registrarse?`,
+    `Buenas! Me das información sobre cómo empezar?`,
+    `Hola! Cómo hago para empezar?`,
+    `Buenas! Me compartís info para sumarme?`,
+    `Hola! Tenés más detalles del anuncio?`,
+    `Buenas! Quiero más info, gracias.`,
+    `Hola! Me interesa, me explicás un poco?`,
+    `Buenas! Qué pasos tengo que seguir?`,
+    `Hola! Vi el aviso, me das info?`,
+    `Buenas! Estoy interesado/a, me pasás detalles?`,
+    `Hola! Me contás de qué se trata?`,
+    `Buenas! Quiero saber más, me ayudás?`
+  ];
+  const base = variantes[Math.floor(Math.random()*variantes.length)];
+  return promo_code ? `${base} ${promo_code}` : base;
+}
+
+/************************************************************
+ * Número desde array (aleatorio)
+ ************************************************************/
+let __pickedResult = null;
+
+function getNumberFromFixed(){
+  const pool = (FIXED_PHONES || [])
+    .map(normalizePhoneDigits)
+    .filter(n => /^\d{8,17}$/.test(n));
+  if(!pool.length) return null;
+
+  const number = pool[Math.floor(Math.random() * pool.length)];
+  return { number, name: LANDING_CONFIG.BRAND_NAME, meta: { fixed: true } };
+}
+
+/************************************************************
+ * CLICK: redirect ASAP, tracking no bloquea
+ ************************************************************/
+function contactarWhatsApp({ source="main_button" } = {}){
+  if (window.__waInFlight) return;
+  window.__waInFlight = true;
+
+  const picked = __pickedResult || getNumberFromFixed();
+  if(!picked){
+    window.__waInFlight = false;
+    return;
+  }
+
+  const cleanPhone = normalizePhoneDigits(picked.number);
+  if(!/^\d{8,17}$/.test(cleanPhone)){
+    window.__waInFlight = false;
+    return;
+  }
+
+  const uuidSegment = generateUUID().replace(/-/g,"").slice(0,12);
+  const promo_code = LANDING_CONFIG.PROMO.ENABLED
+    ? `${LANDING_CONFIG.PROMO.LANDING_TAG}-${uuidSegment}`
+    : "";
+  const mensaje = buildMensaje(promo_code);
+
+  // Pixel Contact enriquecido (no bloquea)
+  const event_id = generateUUID();
+  try{
+    if(window.fbq){
+      fbq("track","Contact",{
+        em: window.userEmail || undefined,
+        ph: window.userPhone || undefined,
+        fn: window.userFn,
+        ln: window.userLn,
+        external_id: window.externalId,
+        content_name: "Botón WhatsApp",
+        content_category: "LeadGen",
+        source: source,
+        method: "Click",
+        event_source: "LandingPage",
+        utm_campaign: getUTMCampaign(),
+        promo_code: promo_code || undefined,
+        device_type: getDeviceType(),
+        brand: LANDING_CONFIG.BRAND_NAME || undefined
+      },{ eventID: event_id });
     }
-    .loading {
-      text-align: center;
-      font-size: 14px;
-      color: #aaa;
-    }
-  </style>
-</head>
-<body>
+  }catch{}
 
-  <p class="loading">Redirigiendo a un canal activo de WhatsApp...</p>
+  // REDIRECT INSTANTÁNEO
+  window.location.assign(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(mensaje)}`);
+}
 
-  <script>
-  /********************************************
-   * CONFIGURACIÓN
-   ********************************************/
-  const USE_API = true;   // true = números desde API  |  false = números desde phones.json
+/************************************************************
+ * UI wiring
+ ************************************************************/
+document.addEventListener("DOMContentLoaded",()=>{
+  __pickedResult = getNumberFromFixed();
 
-  const API_URL      = "/api/get-random-phone";
-  const JSON_FILE    = "./phones.json";
-  const FALLBACK     = [{ phone: "5491169789243", weight: 1 }];
-  const TTL_MS       = 5 * 60 * 1000;
-  const LS_KEY       = "active_whatsapp_numbers";
-  const WA_MESSAGE   = "¡Hola! Me pasás mi usuario 🚀";
-
-  /********************************************
-   * Helpers
-   ********************************************/
-  function fetchWithTimeout(url, opts = {}, ms = 2500) {
-    const ctrl = new AbortController();
-    const id = setTimeout(() => ctrl.abort(), ms);
-    return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
-  }
-
-  function getCache() {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || "null"); }
-    catch { return null; }
-  }
-
-  function setCache(numbers) {
-    localStorage.setItem(LS_KEY, JSON.stringify({ ts: Date.now(), numbers }));
-  }
-
-  function normalize(list) {
-    return (Array.isArray(list) ? list : [])
-      .map(n => ({
-        phone: String(n.phone || n.phone_number || "").replace(/\D+/g, "").trim(),
-        weight: Number(n.weight || 1)
-      }))
-      .filter(n => /^\d{8,17}$/.test(n.phone) && n.weight > 0);
-  }
-
-  function parseApiPayload(data) {
-    if (data && typeof data === "object" && (typeof data.phone_number === "string" || typeof data.phone_number === "number")) {
-      return [{ phone: String(data.phone_number), weight: 1 }];
-    }
-    if (typeof data === "string") return [{ phone: data, weight: 1 }];
-    const arr =
-      (Array.isArray(data?.numbers) && data.numbers) ||
-      (Array.isArray(data?.phone_numbers) && data.phone_numbers) ||
-      (Array.isArray(data?.whatsapp) && data.whatsapp) ||
-      (Array.isArray(data) && data) || [];
-    return arr.map(item => {
-      if (typeof item === "string") return { phone: item, weight: 1 };
-      const phone = String(item?.phone ?? item?.phone_number ?? "").trim();
-      const w = Number(item?.weight ?? 1);
-      return { phone, weight: isFinite(w) && w > 0 ? w : 1 };
+  const btn = document.getElementById("whatsappButton");
+  if(btn){
+    btn.addEventListener("click",(e)=>{
+      e.preventDefault();
+      contactarWhatsApp({ source:"main_button" });
     });
   }
 
-  function pickWeightedRandom(list) {
-    const total = list.reduce((s, it) => s + it.weight, 0);
-    let r = Math.random() * total;
-    for (const it of list) { r -= it.weight; if (r <= 0) return it; }
-    return list[list.length - 1];
-  }
-
-  function buildWaUrl(phone, text) {
-    const clean = phone.replace(/\D/g, "");
-    const encoded = text ? encodeURIComponent(text) : "";
-    return `https://api.whatsapp.com/send?phone=${clean}${encoded ? `&text=${encoded}` : ""}`;
-  }
-
-  /********************************************
-   * Obtener números según USE_API
-   ********************************************/
-  async function fetchFromApi() {
-    const res = await fetchWithTimeout(API_URL, { headers: { "Cache-Control": "no-store" } }, 2500);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-    return normalize(parseApiPayload(data));
-  }
-
-  async function fetchFromJson() {
-    const res = await fetch(JSON_FILE);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-    return normalize(Array.isArray(data) ? data.map(item => {
-      if (typeof item === "string") return { phone: item, weight: 1 };
-      return item;
-    }) : []);
-  }
-
-  async function loadNumbers() {
-    const cached = getCache();
-    try {
-      const numbers = USE_API ? await fetchFromApi() : await fetchFromJson();
-      if (numbers.length) { setCache(numbers); return numbers; }
-      throw new Error("Empty list");
-    } catch (e) {
-      if (cached?.numbers?.length && Date.now() - (cached.ts || 0) < TTL_MS) return cached.numbers;
-      return normalize(FALLBACK);
-    }
-  }
-
-  /********************************************
-   * Redirección
-   ********************************************/
-  async function redirect() {
-    const list = await loadNumbers();
-    if (!list.length) {
-      document.querySelector(".loading").textContent = "Error: no hay números activos.";
-      return;
-    }
-    const chosen = pickWeightedRandom(list);
-    window.location.replace(buildWaUrl(chosen.phone, WA_MESSAGE));
-  }
-
-  redirect();
-  </script>
-</body>
+  window.addEventListener("pageshow", ()=>{ window.__waInFlight=false; });
+  window.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible") window.__waInFlight=false; });
+});
+    </script>
+  </body>
 </html>
